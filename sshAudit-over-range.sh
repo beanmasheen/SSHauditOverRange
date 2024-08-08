@@ -3,16 +3,16 @@
 # Function to run ssh-audit on a given IP and optionally save the output
 run_ssh_audit() {
     IP=$1
-    if [ "$OUTPUT_TO_FILE" = "y" ]; then
-        if [ -w "$OUTPUT_DIR" ]; then
-            ssh-audit $IP > "$OUTPUT_DIR/$IP.txt"
+    OUTPUT=$(ssh-audit $IP 2>&1)
+    if [[ $OUTPUT == *"connection refused"* ]]; then
+        echo "Connection to $IP refused."
+    else
+        if [ "$OUTPUT_TO_FILE" = "y" ]; then
+            echo "$OUTPUT" > "$OUTPUT_DIR/$IP.txt"
             echo "Results for $IP saved to $OUTPUT_DIR/$IP.txt"
         else
-            echo "Error: Cannot write to directory $OUTPUT_DIR. Check permissions."
-            exit 1
+            echo "$OUTPUT"
         fi
-    else
-        ssh-audit $IP
     fi
 }
 
